@@ -71,13 +71,13 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
 
         Box(modifier = Modifier.size(60.dp))
 
-        var showBadge by remember { mutableStateOf(true) }
+        var Badge by remember { mutableStateOf(true) }
 
 
-        ProfileAvatar(showBadge = showBadge)
+        ProfileAvatar(showBadge = Badge)
 
         Button(
-            onClick = { showBadge = !showBadge },
+            onClick = { Badge = !Badge },
             modifier = Modifier.padding(top = 32.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary
@@ -86,7 +86,7 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
             elevation = ButtonDefaults.buttonElevation(2.dp)
         ) {
             Text(
-                text = if (showBadge) "hide" else "show",
+                text = if (Badge) "hide" else "show",
                 style = MaterialTheme.typography.labelLarge
             )
         }
