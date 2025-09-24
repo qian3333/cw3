@@ -4,20 +4,38 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.cw3.ui.theme.Cw3Theme
@@ -28,8 +46,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Cw3Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MainScreen(
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = MaterialTheme.colorScheme.background
+                ) { innerPadding ->
+                    ProfileScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -39,72 +60,101 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
-    Row(
+fun ProfileScreen(modifier: Modifier = Modifier) {
+    Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top
     ) {
-        // 25% 宽度的部分
-        Box(
-            modifier = Modifier
-                .weight(1f) // 1份，总共4份(1+3)，即25%
-                .fillMaxHeight()
-                .background(Color(0xFFE3F2FD)), // 浅蓝色
-            contentAlignment = Alignment.Center
+
+        Box(modifier = Modifier.size(60.dp))
+
+        var showBadge by remember { mutableStateOf(true) }
+
+
+        ProfileAvatar(showBadge = showBadge)
+
+        Button(
+            onClick = { showBadge = !showBadge },
+            modifier = Modifier.padding(top = 32.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary
+            ),
+            shape = MaterialTheme.shapes.medium,
+            elevation = ButtonDefaults.buttonElevation(2.dp)
         ) {
             Text(
-                text = "25% Width",
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.Black
+                text = if (showBadge) "hide" else "show",
+                style = MaterialTheme.typography.labelLarge
             )
         }
+    }
+}
 
-        // 75% 宽度的部分
-        Column(
+@Composable
+fun ProfileAvatar(showBadge: Boolean) {
+    Box(
+        modifier = Modifier
+            .size(140.dp)
+            .shadow(
+                elevation = 8.dp,
+                shape = CircleShape,
+                ambientColor = Color(0x20000000)
+            )
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.profile),
+            contentDescription = "用户头像",
             modifier = Modifier
-                .weight(3f) // 3份，总共4份，即75%
-                .fillMaxHeight()
-                .padding(start = 16.dp)
-        ) {
-            // 2:3:5 比例的子项
-            Box(
-                modifier = Modifier
-                    .weight(2f) // 2份
-                    .fillMaxSize()
-                    .background(Color(0xFFE8F5E9)), // 浅绿色
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "2/10",
-                    style = MaterialTheme.typography.titleMedium
-                )
-            }
+                .size(140.dp)
+                .clip(CircleShape)
+                .border(3.dp, Color.White, CircleShape),
+            contentScale = ContentScale.Crop
+        )
 
+        if (showBadge) {
             Box(
                 modifier = Modifier
-                    .weight(3f) // 3份
-                    .fillMaxSize()
-                    .background(Color(0xFFFFF8E1)), // 浅黄色
-                contentAlignment = Alignment.Center
+                    .size(40.dp)
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 8.dp, bottom = 8.dp)
             ) {
-                Text(
-                    text = "3/10",
-                    style = MaterialTheme.typography.titleMedium
-                )
-            }
+                Surface(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .shadow(4.dp, CircleShape)
+                        .border(2.dp, Color.White, CircleShape)
+                        .background(
+                            brush = Brush.linearGradient(
+                                colors = listOf(
+                                    Color(0xFFFF5252),
+                                    Color(0xFFD32F2F)
+                                )
+                            )
+                        ),
+                    shape = CircleShape,
+                    color = Color.Transparent
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "新通知",
+                            tint = Color.White,
+                            modifier = Modifier.size(18.dp)
+                        )
 
-            Box(
-                modifier = Modifier
-                    .weight(5f) // 5份
-                    .fillMaxSize()
-                    .background(Color(0xFFFCE4EC)), // 浅粉色
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "5/10",
-                    style = MaterialTheme.typography.titleMedium
-                )
+                        Text(
+                            text = "3",
+                            color = Color.White,
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(top = 2.dp, end = 3.dp)
+                        )
+                    }
+                }
             }
         }
     }
@@ -112,8 +162,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
 @Preview(showBackground = true)
 @Composable
-fun MainScreenPreview() {
+fun ProfileScreenPreview() {
     Cw3Theme {
-        MainScreen()
+        ProfileScreen()
     }
 }
+
