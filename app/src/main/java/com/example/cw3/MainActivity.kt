@@ -4,23 +4,33 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.cw3.ui.theme.Cw3Theme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,8 +38,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Cw3Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MainScreen(
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = MaterialTheme.colorScheme.background
+                ) { innerPadding ->
+                    ContactListScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -39,78 +52,170 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                .background(Color(0xFFE3F2FD)),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "25% Width",
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.Black
-            )
+fun ContactListScreen(modifier: Modifier = Modifier) {
+    val contacts = remember { generateContacts(50) }
+    val groupedContacts by remember(contacts) {
+        mutableStateOf(
+            contacts
+                .groupBy { contact ->
+                    contact.name.firstOrNull()?.uppercaseChar() ?: '#'
+                }
+                .toSortedMap()
+        )
+    }
+
+    val listState = rememberLazyListState()
+    var showScrollToTop by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(listState.firstVisibleItemIndex) {
+        showScrollToTop = listState.firstVisibleItemIndex > 10
+    }
+
+    fun scrollToTop() = scope.launch {
+        listState.animateScrollToItem(0)
+    }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        ContactsList(
+            groups = groupedContacts,
+            listState = listState
+        )
+
+        if (showScrollToTop) {
+            FloatingActionButton(
+                onClick = { scrollToTop() },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(24.dp),
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(imageVector = Icons.Filled.KeyboardArrowUp, contentDescription = null)
+            }
         }
+    }
+}
 
-        Column(
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ContactsList(
+    groups: Map<Char, List<Contact>>,
+    listState: androidx.compose.foundation.lazy.LazyListState,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        state = listState,
+        modifier = modifier.fillMaxSize()
+    ) {
+        groups.forEach { (letter, contacts) ->
+            stickyHeader {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .semantics { heading() },
+                    color = MaterialTheme.colorScheme.secondaryContainer
+                ) {
+                    Text(
+                        text = letter.toString(),
+                        modifier = Modifier.padding(12.dp),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            items(
+                items = contacts,
+                key = { it.name } // 若名字唯一
+            ) { contact ->
+                ContactItem(contact)
+            }
+        }
+    }
+}
+
+@Composable
+fun ContactItem(contact: Contact) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        shape = MaterialTheme.shapes.small,
+        tonalElevation = 1.dp
+    ) {
+        Row(
             modifier = Modifier
-                .weight(3f)
-                .fillMaxHeight()
-                .padding(start = 16.dp)
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
+            Icon(
+                imageVector = Icons.Filled.Person,
+                contentDescription = "${contact.name} 头像",
                 modifier = Modifier
-                    .weight(2f)
-                    .fillMaxSize()
-                    .background(Color(0xFFE8F5E9)),
-                contentAlignment = Alignment.Center
-            ) {
+                    .size(48.dp)
+                    .clip(CircleShape),
+                tint = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column {
                 Text(
-                    text = "2/10",
+                    text = contact.name,
                     style = MaterialTheme.typography.titleMedium
                 )
-            }
-
-            Box(
-                modifier = Modifier
-                    .weight(3f)
-                    .fillMaxSize()
-                    .background(Color(0xFFFFF8E1)),
-                contentAlignment = Alignment.Center
-            ) {
                 Text(
-                    text = "3/10",
-                    style = MaterialTheme.typography.titleMedium
-                )
-            }
-
-            Box(
-                modifier = Modifier
-                    .weight(5f)
-                    .fillMaxSize()
-                    .background(Color(0xFFFCE4EC)), 
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "5/10",
-                    style = MaterialTheme.typography.titleMedium
+                    text = contact.phone,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
                 )
             }
         }
     }
 }
 
+data class Contact(
+    val name: String,
+    val phone: String
+)
+
+fun generateContacts(count: Int = 50): List<Contact> {
+    val firstNames = listOf(
+        "Emma", "Liam", "Olivia", "Noah", "Ava", "Elijah", "Sophia", "Oliver",
+        "Isabella", "William", "Charlotte", "Benjamin", "Mia", "Lucas", "Amelia",
+        "Henry", "Harper", "Alexander", "Evelyn", "Matthew", "Abigail", "Theodore",
+        "Elizabeth", "James", "Sofia", "Robert", "Avery", "Michael", "Ella", "David"
+    )
+    val lastNames = listOf(
+        "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller",
+        "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez",
+        "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin"
+    )
+
+    return (1..count).map {
+        val fullName = "${firstNames.random()} ${lastNames.random()}"
+        val phone = "13${(10000000..99999999).random()}"
+        Contact(fullName, phone)
+    }.distinctBy { it.name } // 简单去重（避免 key 冲突）
+        .sortedBy { it.name }
+}
+
 @Preview(showBackground = true)
 @Composable
-fun MainScreenPreview() {
+fun ContactListPreview() {
     Cw3Theme {
-        MainScreen()
+        // 提供稳定数据（不随机）
+        val demo = listOf(
+            Contact("Alice Brown", "13800000001"),
+            Contact("Alice Cooper", "13800000002"),
+            Contact("Bob Dylan", "13800000003"),
+            Contact("Charlie Evans", "13800000004"),
+            Contact("David Ford", "13800000005")
+        )
+        val grouped = remember(demo) {
+            demo.groupBy { it.name.first().uppercaseChar() }.toSortedMap()
+        }
+        val listState = rememberLazyListState()
+        ContactsList(groups = grouped, listState = listState)
     }
 }
