@@ -106,7 +106,7 @@ fun ProfileAvatar(showBadge: Boolean) {
     ) {
         Image(
             painter = painterResource(id = R.drawable.profile),
-            contentDescription = "用户头像",
+            contentDescription = "profile picture",
             modifier = Modifier
                 .size(140.dp)
                 .clip(CircleShape)
@@ -140,7 +140,7 @@ fun ProfileAvatar(showBadge: Boolean) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             imageVector = Icons.Default.Notifications,
-                            contentDescription = "新通知",
+                            contentDescription = "new notification",
                             tint = Color.White,
                             modifier = Modifier.size(18.dp)
                         )
