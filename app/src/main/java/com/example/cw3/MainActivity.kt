@@ -126,7 +126,7 @@ fun ContactsList(
 
             items(
                 items = contacts,
-                key = { it.name } // 若名字唯一
+                key = { it.name }
             ) { contact ->
                 ContactItem(contact)
             }
@@ -196,7 +196,7 @@ fun generateContacts(count: Int = 50): List<Contact> {
         val fullName = "${firstNames.random()} ${lastNames.random()}"
         val phone = "13${(10000000..99999999).random()}"
         Contact(fullName, phone)
-    }.distinctBy { it.name } // 简单去重（避免 key 冲突）
+    }.distinctBy { it.name }
         .sortedBy { it.name }
 }
 
@@ -204,7 +204,7 @@ fun generateContacts(count: Int = 50): List<Contact> {
 @Composable
 fun ContactListPreview() {
     Cw3Theme {
-        // 提供稳定数据（不随机）
+
         val demo = listOf(
             Contact("Alice Brown", "13800000001"),
             Contact("Alice Cooper", "13800000002"),
