@@ -4,29 +4,35 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.cw3.ui.theme.Cw3Theme
@@ -38,184 +44,98 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Cw3Theme {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    containerColor = MaterialTheme.colorScheme.background
-                ) { innerPadding ->
-                    ContactListScreen(
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                MainScaffold()
             }
         }
     }
 }
 
-@Composable
-fun ContactListScreen(modifier: Modifier = Modifier) {
-    val contacts = remember { generateContacts(50) }
-    val groupedContacts by remember(contacts) {
-        mutableStateOf(
-            contacts
-                .groupBy { contact ->
-                    contact.name.firstOrNull()?.uppercaseChar() ?: '#'
-                }
-                .toSortedMap()
-        )
-    }
 
-    val listState = rememberLazyListState()
-    var showScrollToTop by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
-
-    LaunchedEffect(listState.firstVisibleItemIndex) {
-        showScrollToTop = listState.firstVisibleItemIndex > 10
-    }
-
-    fun scrollToTop() = scope.launch {
-        listState.animateScrollToItem(0)
-    }
-
-    Box(modifier = modifier.fillMaxSize()) {
-        ContactsList(
-            groups = groupedContacts,
-            listState = listState
-        )
-
-        if (showScrollToTop) {
-            FloatingActionButton(
-                onClick = { scrollToTop() },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(24.dp),
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(imageVector = Icons.Filled.KeyboardArrowUp, contentDescription = null)
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun ContactsList(
-    groups: Map<Char, List<Contact>>,
-    listState: androidx.compose.foundation.lazy.LazyListState,
-    modifier: Modifier = Modifier
-) {
-    LazyColumn(
-        state = listState,
-        modifier = modifier.fillMaxSize()
-    ) {
-        groups.forEach { (letter, contacts) ->
-            stickyHeader {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .semantics { heading() },
-                    color = MaterialTheme.colorScheme.secondaryContainer
-                ) {
-                    Text(
-                        text = letter.toString(),
-                        modifier = Modifier.padding(12.dp),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-
-            items(
-                items = contacts,
-                key = { it.name }
-            ) { contact ->
-                ContactItem(contact)
-            }
-        }
-    }
-}
-
-@Composable
-fun ContactItem(contact: Contact) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp),
-        shape = MaterialTheme.shapes.small,
-        tonalElevation = 1.dp
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Person,
-                contentDescription = "${contact.name} 头像",
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape),
-                tint = MaterialTheme.colorScheme.primary
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column {
-                Text(
-                    text = contact.name,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    text = contact.phone,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
-                )
-            }
-        }
-    }
-}
-
-data class Contact(
-    val name: String,
-    val phone: String
+data class NavItem(
+    val title: String,
+    val icon: ImageVector,
+    val route: String
 )
 
-fun generateContacts(count: Int = 50): List<Contact> {
-    val firstNames = listOf(
-        "Emma", "Liam", "Olivia", "Noah", "Ava", "Elijah", "Sophia", "Oliver",
-        "Isabella", "William", "Charlotte", "Benjamin", "Mia", "Lucas", "Amelia",
-        "Henry", "Harper", "Alexander", "Evelyn", "Matthew", "Abigail", "Theodore",
-        "Elizabeth", "James", "Sofia", "Robert", "Avery", "Michael", "Ella", "David"
-    )
-    val lastNames = listOf(
-        "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller",
-        "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez",
-        "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin"
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainScaffold() {
+    val navItems = listOf(
+        NavItem("Home", Icons.Default.Home, "home"),
+        NavItem("Settings", Icons.Default.Settings, "settings"),
+        NavItem("Profile", Icons.Default.Person, "profile")
     )
 
-    return (1..count).map {
-        val fullName = "${firstNames.random()} ${lastNames.random()}"
-        val phone = "13${(10000000..99999999).random()}"
-        Contact(fullName, phone)
-    }.distinctBy { it.name }
-        .sortedBy { it.name }
+
+    var selectedItem by remember { mutableStateOf(0) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
+
+    val currentScreen = when (selectedItem) {
+        0 -> "Home Screen"
+        1 -> "Settings Screen"
+        2 -> "Profile Screen"
+        else -> "Unknown Screen"
+    }
+
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("My App") },
+                modifier = Modifier.padding(horizontal = 4.dp)
+            )
+        },
+        bottomBar = {
+            NavigationBar {
+                navItems.forEachIndexed { index, item ->
+                    NavigationBarItem(
+                        icon = { Icon(item.icon, contentDescription = item.title) },
+                        label = { Text(item.title) },
+                        selected = selectedItem == index,
+                        onClick = { selectedItem = index }
+                    )
+                }
+            }
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = "FAB clicked!",
+                            actionLabel = "OK"
+                        )
+                    }
+                }
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add")
+            }
+        },
+        floatingActionButtonPosition = FabPosition.End,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        modifier = Modifier.fillMaxSize()
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = currentScreen,
+                style = MaterialTheme.typography.headlineMedium
+            )
+        }
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun ContactListPreview() {
+fun MainScaffoldPreview() {
     Cw3Theme {
-
-        val demo = listOf(
-            Contact("Alice Brown", "13800000001"),
-            Contact("Alice Cooper", "13800000002"),
-            Contact("Bob Dylan", "13800000003"),
-            Contact("Charlie Evans", "13800000004"),
-            Contact("David Ford", "13800000005")
-        )
-        val grouped = remember(demo) {
-            demo.groupBy { it.name.first().uppercaseChar() }.toSortedMap()
-        }
-        val listState = rememberLazyListState()
-        ContactsList(groups = grouped, listState = listState)
+        MainScaffold()
     }
 }
