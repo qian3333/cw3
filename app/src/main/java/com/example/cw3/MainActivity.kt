@@ -45,7 +45,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // 25% 宽度的部分
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -60,14 +59,12 @@ fun MainScreen(modifier: Modifier = Modifier) {
             )
         }
 
-        // 75% 宽度的部分
         Column(
             modifier = Modifier
                 .weight(3f)
                 .fillMaxHeight()
                 .padding(start = 16.dp)
         ) {
-            // 2:3:5 比例的子项
             Box(
                 modifier = Modifier
                     .weight(2f)
