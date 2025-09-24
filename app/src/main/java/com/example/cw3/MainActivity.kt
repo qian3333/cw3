@@ -48,9 +48,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
         // 25% 宽度的部分
         Box(
             modifier = Modifier
-                .weight(1f) // 1份，总共4份(1+3)，即25%
+                .weight(1f)
                 .fillMaxHeight()
-                .background(Color(0xFFE3F2FD)), // 浅蓝色
+                .background(Color(0xFFE3F2FD)),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -63,16 +63,16 @@ fun MainScreen(modifier: Modifier = Modifier) {
         // 75% 宽度的部分
         Column(
             modifier = Modifier
-                .weight(3f) // 3份，总共4份，即75%
+                .weight(3f)
                 .fillMaxHeight()
                 .padding(start = 16.dp)
         ) {
             // 2:3:5 比例的子项
             Box(
                 modifier = Modifier
-                    .weight(2f) // 2份
+                    .weight(2f)
                     .fillMaxSize()
-                    .background(Color(0xFFE8F5E9)), // 浅绿色
+                    .background(Color(0xFFE8F5E9)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -83,9 +83,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
             Box(
                 modifier = Modifier
-                    .weight(3f) // 3份
+                    .weight(3f)
                     .fillMaxSize()
-                    .background(Color(0xFFFFF8E1)), // 浅黄色
+                    .background(Color(0xFFFFF8E1)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -96,9 +96,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
             Box(
                 modifier = Modifier
-                    .weight(5f) // 5份
+                    .weight(5f)
                     .fillMaxSize()
-                    .background(Color(0xFFFCE4EC)), // 浅粉色
+                    .background(Color(0xFFFCE4EC)), 
                 contentAlignment = Alignment.Center
             ) {
                 Text(
