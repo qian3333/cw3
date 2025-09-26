@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -23,8 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.cw3.ui.theme.Cw3Theme
@@ -50,6 +47,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun LoginForm(modifier: Modifier = Modifier) {
+    // use remember to persist across process death/config changes.
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var usernameError by remember { mutableStateOf(false) }
@@ -57,6 +55,8 @@ fun LoginForm(modifier: Modifier = Modifier) {
     var submissionStatus by remember { mutableStateOf("") }
 
     fun validateFields(): Boolean {
+        // mark a field as error if it is empty.
+
         usernameError = username.isEmpty()
         passwordError = password.isEmpty()
         return !usernameError && !passwordError
@@ -64,7 +64,7 @@ fun LoginForm(modifier: Modifier = Modifier) {
 
     fun handleSubmit() {
         if (validateFields()) {
-            submissionStatus = "Login submitted for $username"
+            submissionStatus = "login submitted"
         } else {
             submissionStatus = ""
         }
@@ -86,7 +86,7 @@ fun LoginForm(modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.primary
             )
-
+            // outlinedTextField is a Material component that shows an outlined input box.
             OutlinedTextField(
                 value = username,
                 onValueChange = {
@@ -97,7 +97,7 @@ fun LoginForm(modifier: Modifier = Modifier) {
                 isError = usernameError,
                 supportingText = {
                     if (usernameError) {
-                        Text("Username cannot be empty")
+                        Text("username cannot be empty")
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -114,11 +114,9 @@ fun LoginForm(modifier: Modifier = Modifier) {
                 isError = passwordError,
                 supportingText = {
                     if (passwordError) {
-                        Text("Password cannot be empty")
+                        Text("password cannot be empty")
                     }
                 },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -136,7 +134,7 @@ fun LoginForm(modifier: Modifier = Modifier) {
                     modifier = Modifier.padding(8.dp)
                 )
             }
-
+            // show submissionStatus when not empty
             if (submissionStatus.isNotEmpty()) {
                 Text(
                     text = submissionStatus,
@@ -156,10 +154,3 @@ fun LoginFormPreview() {
     }
 }
 
-@Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun LoginFormDarkPreview() {
-    Cw3Theme {
-        LoginForm()
-    }
-}
