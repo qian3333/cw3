@@ -53,21 +53,19 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun ContactListScreen(modifier: Modifier = Modifier) {
+    // generate contacts information and sort by their first name
     val contacts = remember { generateContacts(50) }
     val groupedContacts by remember(contacts) {
         mutableStateOf(
-            contacts
-                .groupBy { contact ->
-                    contact.name.firstOrNull()?.uppercaseChar() ?: '#'
-                }
+            contacts.groupBy { it.name.firstOrNull()?.uppercaseChar() ?: '#' }
                 .toSortedMap()
         )
     }
-
+    // Coroutine scope for scroll animations
     val listState = rememberLazyListState()
     var showScrollToTop by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-
+    // show the scroll back button under some situations
     LaunchedEffect(listState.firstVisibleItemIndex) {
         showScrollToTop = listState.firstVisibleItemIndex > 10
     }
@@ -98,16 +96,15 @@ fun ContactListScreen(modifier: Modifier = Modifier) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ContactsList(
-    groups: Map<Char, List<Contact>>,
-    listState: androidx.compose.foundation.lazy.LazyListState,
-    modifier: Modifier = Modifier
+// listen and control the scrolable state
+fun ContactsList(groups: Map<Char, List<Contact>>, listState: androidx.compose.foundation.lazy.LazyListState, modifier: Modifier = Modifier
 ) {
     LazyColumn(
         state = listState,
         modifier = modifier.fillMaxSize()
     ) {
         groups.forEach { (letter, contacts) ->
+            // create a sticktheader(like contact in the phone)
             stickyHeader {
                 Surface(
                     modifier = Modifier
@@ -126,6 +123,7 @@ fun ContactsList(
 
             items(
                 items = contacts,
+                // the key to find a contactor is the name
                 key = { it.name }
             ) { contact ->
                 ContactItem(contact)
@@ -150,7 +148,7 @@ fun ContactItem(contact: Contact) {
         ) {
             Icon(
                 imageVector = Icons.Filled.Person,
-                contentDescription = "${contact.name} 头像",
+                contentDescription = "${contact.name} ",
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape),
@@ -178,7 +176,7 @@ data class Contact(
     val name: String,
     val phone: String
 )
-
+//generate the contact numbers and names
 fun generateContacts(count: Int = 50): List<Contact> {
     val firstNames = listOf(
         "Emma", "Liam", "Olivia", "Noah", "Ava", "Elijah", "Sophia", "Oliver",
@@ -212,6 +210,7 @@ fun ContactListPreview() {
             Contact("Charlie Evans", "13800000004"),
             Contact("David Ford", "13800000005")
         )
+        // group demo contacts for preview
         val grouped = remember(demo) {
             demo.groupBy { it.name.first().uppercaseChar() }.toSortedMap()
         }
