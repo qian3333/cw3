@@ -83,7 +83,6 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                 containerColor = MaterialTheme.colorScheme.primary
             ),
             shape = MaterialTheme.shapes.medium,
-            elevation = ButtonDefaults.buttonElevation(2.dp)
         ) {
             Text(
                 text = if (sBadge) "hide" else "show",
