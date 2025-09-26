@@ -71,7 +71,7 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
 
         Box(modifier = Modifier.size(60.dp))
 
-        var sBadge by remember { mutableStateOf(true) }
+        var sBadge by remember { mutableStateOf(true) } // whether to show the badge
 
 
         ProfileAvatar(showBadge = sBadge)
@@ -101,14 +101,14 @@ fun ProfileAvatar(showBadge: Boolean) {
                 elevation = 8.dp,
                 shape = CircleShape,
                 ambientColor = Color(0x20000000)
-            )
+            ) // outer shadow for depth behind the avatar
     ) {
         Image(
             painter = painterResource(id = R.drawable.profile),
             contentDescription = "profile picture",
             modifier = Modifier
                 .size(140.dp)
-                .clip(CircleShape)
+                .clip(CircleShape) // clip image to a circle to form the avatar
                 .border(3.dp, Color.White, CircleShape),
             contentScale = ContentScale.Crop
         )
@@ -130,7 +130,7 @@ fun ProfileAvatar(showBadge: Boolean) {
                                 colors = listOf(
                                     Color(0xFFFF5252),
                                     Color(0xFFD32F2F)
-                                )
+                                ) // red gradient background for visual emphasis
                             )
                         ),
                     shape = CircleShape,
@@ -142,16 +142,7 @@ fun ProfileAvatar(showBadge: Boolean) {
                             contentDescription = "new notification",
                             tint = Color.White,
                             modifier = Modifier.size(18.dp)
-                        )
-
-                        Text(
-                            text = "3",
-                            color = Color.White,
-                            style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(top = 2.dp, end = 3.dp)
-                        )
+                        ) // notification bell icon centered in the badge
                     }
                 }
             }
