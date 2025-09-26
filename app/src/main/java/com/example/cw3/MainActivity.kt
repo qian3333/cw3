@@ -57,7 +57,7 @@ data class NavItem(
     val route: String
 )
 
-
+// using ImageVector allows passing material icons.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScaffold() {
@@ -67,7 +67,7 @@ fun MainScaffold() {
         NavItem("Profile", Icons.Default.Person, "profile")
     )
 
-
+    // use to show snackbars from a coroutine.
     var selectedItem by remember { mutableStateOf(0) }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -89,6 +89,7 @@ fun MainScaffold() {
             )
         },
         bottomBar = {
+            //navigation container.
             NavigationBar {
                 navItems.forEachIndexed { index, item ->
                     NavigationBarItem(
@@ -102,10 +103,12 @@ fun MainScaffold() {
         },
         floatingActionButton = {
             FloatingActionButton(
+                // floatingActionButton triggers a Snackbar when clicked.
+                // use coroutineScope to call suspend show Snackbar.
                 onClick = {
                     coroutineScope.launch {
                         snackbarHostState.showSnackbar(
-                            message = "FAB clicked!",
+                            message = "FAB click",
                             actionLabel = "OK"
                         )
                     }
