@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
             Cw3Theme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MainScreen(
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding)  // Apply Scaffold's inner padding to avoid overlap with system bars / app bars
                     )
                 }
             }
@@ -43,11 +43,11 @@ fun MainScreen(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(16.dp) // padding to keep content away from screen edges
     ) {
         Box(
             modifier = Modifier
-                .weight(1f)
+                .weight(1f) // use weight to split the row
                 .fillMaxHeight()
                 .background(Color(0xFFE3F2FD)),
             contentAlignment = Alignment.Center
